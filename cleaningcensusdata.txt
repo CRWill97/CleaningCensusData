@@ -1,0 +1,203 @@
+CleaningADataSet.R
+Cameron Willliams
+Sun Oct 06 20:25:01 2019
+ urlToread <-
+   "https://www2.census.gov/programs-surveys/popest/tables/2010-2011/state/totals/na-est2011-01.csv"
+testFrame <- read.csv(url(urlToread)) 
+str(testFrame)
+## 'data.frame':    43 obs. of  15 variables:
+##  $ table.with.row.headers.in.column.A.and.column.headers.in.row.3...leading.dots.indicate.sub.parts.: Factor w/ 23 levels ".April 1",".August 1",..: 21 23 14 1 9 7 6 2 12 11 ...
+##  $ X                                                                                                : Factor w/ 34 levels "","308,745,538",..: 1 34 1 2 3 4 5 6 7 8 ...
+##  $ X.1                                                                                              : Factor w/ 34 levels "","309,178,489",..: 1 34 1 2 3 4 5 6 7 8 ...
+##  $ X.2                                                                                              : Factor w/ 34 levels "","307,515,594",..: 1 34 1 2 3 4 5 6 7 8 ...
+##  $ X.3                                                                                              : Factor w/ 34 levels "","303,523,990",..: 1 34 1 2 3 4 5 6 7 8 ...
+##  $ X.4                                                                                              : Factor w/ 34 levels "","300,758,215",..: 1 34 1 2 3 4 5 6 7 8 ...
+##  $ X.5                                                                                              : logi  NA NA NA NA NA NA ...
+##  $ X.6                                                                                              : logi  NA NA NA NA NA NA ...
+##  $ X.7                                                                                              : logi  NA NA NA NA NA NA ...
+##  $ X.8                                                                                              : logi  NA NA NA NA NA NA ...
+##  $ X.9                                                                                              : logi  NA NA NA NA NA NA ...
+##  $ X.10                                                                                             : logi  NA NA NA NA NA NA ...
+##  $ X.11                                                                                             : logi  NA NA NA NA NA NA ...
+##  $ X.12                                                                                             : logi  NA NA NA NA NA NA ...
+##  $ X.13                                                                                             : logi  NA NA NA NA NA NA ...
+testFrame <- testFrame[-1:-8,]
+summary(testFrame[,6:10])
+##           X.4       X.5            X.6            X.7         
+##             : 8   Mode:logical   Mode:logical   Mode:logical  
+##  301,772,774: 1   NA's:35        NA's:35        NA's:35       
+##  301,990,592: 1                                               
+##  302,176,102: 1                                               
+##  302,339,514: 1                                               
+##  302,529,737: 1                                               
+##  (Other)    :22                                               
+##    X.8         
+##  Mode:logical  
+##  NA's:35       
+##                
+##                
+##                
+##                
+## 
+testFrame <- testFrame[,1:5]
+tail(testFrame,5)
+##                                                                                                                                                                                               table.with.row.headers.in.column.A.and.column.headers.in.row.3...leading.dots.indicate.sub.parts.
+## 39 Note: The estimates are based on Census 2010.  The April 1, 2010 population in this table is the Population Estimates base, which reflects changes to the Census 2010 population from geographic program revisions.  It does not reflect changes from the Count Question Resolution program.
+## 40                                                                                                                                                                                                                                                                          Suggested Citation:
+## 41                                                                                                                                                                            Table 1. Monthly Population Estimates for the United States: April 1, 2010 to November 1, 2012 (NA-EST2011-01-11)
+## 42                                                                                                                                                                                                                                              Source: U.S. Census Bureau, Population Division
+## 43                                                                                                                                                                                                                                                                  Release Date: December 2012
+##    X X.1 X.2 X.3
+## 39              
+## 40              
+## 41              
+## 42              
+## 43
+testFrame <- testFrame[-52:-58,]
+testFrame$statename <- testFrame[,1]
+colnames(testFrame)
+## [1] "table.with.row.headers.in.column.A.and.column.headers.in.row.3...leading.dots.indicate.sub.parts."
+## [2] "X"                                                                                                
+## [3] "X.1"                                                                                              
+## [4] "X.2"                                                                                              
+## [5] "X.3"                                                                                              
+## [6] "statename"
+cnames <- colnames(testFrame)
+cnames[1] <- "newName"
+cnames
+## [1] "newName"   "X"         "X.1"       "X.2"       "X.3"       "statename"
+colnames(testFrame) <- cnames
+colnames(testFrame)
+## [1] "newName"   "X"         "X.1"       "X.2"       "X.3"       "statename"
+testFrame <- testFrame[,-1]
+testFrame$statename <- gsub("\\.","",
+                            testFrame$statename)
+testFrame$april10census <- gsub(",","",testFrame$X)
+testFrame$april10base <- gsub(",","",testFrame$X.1)
+testFrame$july10pop <- gsub(",","",testFrame$X.2)
+testFrame$july11pop <- gsub(",","",testFrame$X.3)
+
+testFrame$april10census <- as.numeric(gsub(" ","",testFrame$april10census))
+testFrame$april10base <- as.numeric(gsub(" ","",testFrame$april10base))
+testFrame$july10pop <- as.numeric(gsub(" ","",testFrame$july10pop))
+testFrame$july11pop <- as.numeric(gsub(" ","",testFrame$july11pop))
+
+testFrame <- testFrame[,-1:-4]
+
+str(testFrame)
+## 'data.frame':    35 obs. of  5 variables:
+##  $ statename    : chr  "September 1" "October 1" "November 1" "December 1" ...
+##  $ april10census: num  3.1e+08 3.1e+08 3.1e+08 3.1e+08 NA ...
+##  $ april10base  : num  3.10e+08 3.10e+08 3.11e+08 3.11e+08 NA ...
+##  $ july10pop    : num  3.09e+08 3.09e+08 3.09e+08 3.09e+08 NA ...
+##  $ july11pop    : num  3.05e+08 3.05e+08 3.05e+08 3.05e+08 NA ...
+head(testFrame,5)
+##      statename april10census april10base july10pop july11pop
+## 9  September 1     309770388   310175636 308533448 304540579
+## 10   October 1     309989078   310390181 308756024 304762875
+## 11  November 1     310175460   310585977 308953203 304959774
+## 12  December 1     310339744   310760405 309127427 305133718
+## 13       20111            NA          NA        NA        NA
+rownames(testFrame) <- NULL
+
+head(testFrame,5)
+##     statename april10census april10base july10pop july11pop
+## 1 September 1     309770388   310175636 308533448 304540579
+## 2   October 1     309989078   310390181 308756024 304762875
+## 3  November 1     310175460   310585977 308953203 304959774
+## 4  December 1     310339744   310760405 309127427 305133718
+## 5       20111            NA          NA        NA        NA
+sortedStates <- 
+  testFrame[order(testFrame$july11pop),]
+
+head(sortedStates,5)
+##     statename april10census april10base july10pop july11pop
+## 1 September 1     309770388   310175636 308533448 304540579
+## 2   October 1     309989078   310390181 308756024 304762875
+## 3  November 1     310175460   310585977 308953203 304959774
+## 4  December 1     310339744   310760405 309127427 305133718
+## 6   January 1     310530839   310938708 309313501 305319512
+sortedStates <- 
+  testFrame[order(-testFrame$july11pop),]
+
+head(sortedStates,5)
+##      statename april10census april10base july10pop july11pop
+## 29  November 1     314687369   315104214 313469869 309474204
+## 28   October 1     314491547   314908392 313274047 309278382
+## 27 September 1     314277027   314693872 313059527 309063862
+## 26    August 1     314067186   314484031 312849686 308854021
+## 25      July 1     313851022   314267867 312633522 308637857
+sortedStates
+##                                                                                                                                                                                                                                                                                    statename
+## 29                                                                                                                                                                                                                                                                                November 1
+## 28                                                                                                                                                                                                                                                                                 October 1
+## 27                                                                                                                                                                                                                                                                               September 1
+## 26                                                                                                                                                                                                                                                                                  August 1
+## 25                                                                                                                                                                                                                                                                                    July 1
+## 24                                                                                                                                                                                                                                                                                    June 1
+## 23                                                                                                                                                                                                                                                                                     May 1
+## 22                                                                                                                                                                                                                                                                                   April 1
+## 21                                                                                                                                                                                                                                                                                   March 1
+## 20                                                                                                                                                                                                                                                                                February 1
+## 19                                                                                                                                                                                                                                                                                 January 1
+## 17                                                                                                                                                                                                                                                                                December 1
+## 16                                                                                                                                                                                                                                                                                November 1
+## 15                                                                                                                                                                                                                                                                                 October 1
+## 14                                                                                                                                                                                                                                                                               September 1
+## 13                                                                                                                                                                                                                                                                                  August 1
+## 12                                                                                                                                                                                                                                                                                    July 1
+## 11                                                                                                                                                                                                                                                                                    June 1
+## 10                                                                                                                                                                                                                                                                                     May 1
+## 9                                                                                                                                                                                                                                                                                    April 1
+## 8                                                                                                                                                                                                                                                                                    March 1
+## 7                                                                                                                                                                                                                                                                                 February 1
+## 6                                                                                                                                                                                                                                                                                  January 1
+## 4                                                                                                                                                                                                                                                                                 December 1
+## 3                                                                                                                                                                                                                                                                                 November 1
+## 2                                                                                                                                                                                                                                                                                  October 1
+## 1                                                                                                                                                                                                                                                                                September 1
+## 5                                                                                                                                                                                                                                                                                      20111
+## 18                                                                                                                                                                                                                                                                                     20121
+## 30                                                                                                                                                                                               1The monthly estimates beginning with August 1, 2011 and forward are short-term projections
+## 31 Note: The estimates are based on Census 2010  The April 1, 2010 population in this table is the Population Estimates base, which reflects changes to the Census 2010 population from geographic program revisions  It does not reflect changes from the Count Question Resolution program
+## 32                                                                                                                                                                                                                                                                       Suggested Citation:
+## 33                                                                                                                                                                          Table 1 Monthly Population Estimates for the United States: April 1, 2010 to November 1, 2012 (NA-EST2011-01-11)
+## 34                                                                                                                                                                                                                                             Source: US Census Bureau, Population Division
+## 35                                                                                                                                                                                                                                                               Release Date: December 2012
+##    april10census april10base july10pop july11pop
+## 29     314687369   315104214 313469869 309474204
+## 28     314491547   314908392 313274047 309278382
+## 27     314277027   314693872 313059527 309063862
+## 26     314067186   314484031 312849686 308854021
+## 25     313851022   314267867 312633522 308637857
+## 24     313650302   314067147 312432802 308437137
+## 23     313460763   313877608 312243263 308247598
+## 22     313281495   313698340 312063995 308068330
+## 21     313104674   313521519 311887174 307891509
+## 20     312941906   313358751 311724406 307728741
+## 19     312780968   313197813 311563468 307567803
+## 17     312602730   313019575 311385230 307389565
+## 16     312428247   312845092 311210747 307215082
+## 15     312232442   312649287 311014942 307019277
+## 14     312017903   312434748 310800403 306804738
+## 13     311808092   312224937 310590592 306594927
+## 12     311591917   312008762 310374417 306378752
+## 11     311389790   311808081 310174356 306178967
+## 10     311215118   311618537 309989093 305993984
+## 9      311030780   311439235 309806530 305811701
+## 8      310846224   311262429 309632355 305637806
+## 7      310695240   311099630 309469781 305475512
+## 6      310530839   310938708 309313501 305319512
+## 4      310339744   310760405 309127427 305133718
+## 3      310175460   310585977 308953203 304959774
+## 2      309989078   310390181 308756024 304762875
+## 1      309770388   310175636 308533448 304540579
+## 5             NA          NA        NA        NA
+## 18            NA          NA        NA        NA
+## 30            NA          NA        NA        NA
+## 31            NA          NA        NA        NA
+## 32            NA          NA        NA        NA
+## 33            NA          NA        NA        NA
+## 34            NA          NA        NA        NA
+## 35            NA          NA        NA        NA
+write.csv(sortedStates,"testFrame.CW.csv")
